@@ -1,4 +1,5 @@
 import { useEffect, useMemo, Fragment, memo } from 'react'
+import { motion } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { fetchPortfolio, fetchSectors } from '@/store/slices/portfolioSlice'
 import { useInterval } from '@/hooks/useInterval'
@@ -118,13 +119,37 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
   )
 })
 
+const sectorCardVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.06, duration: 0.3, ease: 'easeOut' as const },
+  }),
+}
+
 const SectorCards = memo(function SectorCards({ sectors }: { sectors: SectorSummary[] }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {sectors.map((s) => (
-        <div
+    <motion.div
+      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      initial="hidden"
+      animate="visible"
+      variants={{
+        visible: { transition: { staggerChildren: 0.06 } },
+      }}
+    >
+      {sectors.map((s, i) => (
+        <motion.div
           key={s.sector}
-          className="rounded-none border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 shadow-sm"
+          custom={i}
+          variants={sectorCardVariants}
+          whileHover={{
+            y: -4,
+            boxShadow: '0 12px 24px -8px rgba(0,0,0,0.12), 0 4px 8px -4px rgba(0,0,0,0.08)',
+            transition: { duration: 0.2, ease: 'easeOut' },
+          }}
+          whileTap={{ scale: 0.99 }}
+          className="rounded-none border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 shadow-sm cursor-default"
         >
           <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{s.sector}</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -143,9 +168,9 @@ const SectorCards = memo(function SectorCards({ sectors }: { sectors: SectorSumm
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
             {s.holdingsCount} holding{s.holdingsCount !== 1 ? 's' : ''}
           </p>
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   )
 })
 
