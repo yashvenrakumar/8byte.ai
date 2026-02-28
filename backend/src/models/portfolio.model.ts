@@ -1,3 +1,13 @@
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+/** Resolve seed path: prefer dist/data (production), else src/data (dev). */
+function getSeedPath(): string {
+  const fromDist = join(process.cwd(), 'dist', 'data', 'portfolio.seed.json');
+  if (existsSync(fromDist)) return fromDist;
+  return join(process.cwd(), 'src', 'data', 'portfolio.seed.json');
+}
+
 export interface Holding {
   id: string;
   particulars: string;
@@ -22,32 +32,25 @@ export interface SectorSummary {
   holdingsCount: number;
 }
 
-// In-memory / placeholder data; replace with DB or file read (e.g. from Excel/JSON)
-const MOCK_HOLDINGS: Omit<Holding, 'cmp' | 'presentValue' | 'gainLoss' | 'peRatio' | 'latestEarnings'>[] = [
-  {
-    id: '1',
-    particulars: 'Reliance Industries',
-    purchasePrice: 2400,
-    quantity: 10,
-    investment: 24000,
-    portfolioPercent: 15,
-    nseBse: 'NSE',
-    sector: 'Energy',
-  },
-  {
-    id: '2',
-    particulars: 'TCS',
-    purchasePrice: 3500,
-    quantity: 5,
-    investment: 17500,
-    portfolioPercent: 11,
-    nseBse: 'NSE',
-    sector: 'Technology',
-  },
-];
+export interface SeedHolding {
+  id: string;
+  particulars: string;
+  purchasePrice: number;
+  quantity: number;
+  investment: number;
+  portfolioPercent: number;
+  nseBse: string;
+  sector: string;
+}
+
+function loadSeed(): SeedHolding[] {
+  const seedPath = getSeedPath();
+  const raw = readFileSync(seedPath, 'utf-8');
+  return JSON.parse(raw) as SeedHolding[];
+}
 
 function addComputedFields(
-  row: (typeof MOCK_HOLDINGS)[0],
+  row: SeedHolding,
   cmp: number,
   peRatio: number | null,
   latestEarnings: string | null
@@ -64,17 +67,51 @@ function addComputedFields(
   };
 }
 
+/** Resolve CMP: use provided map or fallback to purchase price. Used by service layer when integrating Yahoo/Google. */
+export function resolveCmp(
+  seed: SeedHolding,
+  cmpBySymbol: Map<string, number>
+): number {
+  const cmp = cmpBySymbol.get(seed.nseBse);
+  return typeof cmp === 'number' && Number.isFinite(cmp) ? cmp : seed.purchasePrice;
+}
+
 export const portfolioModel = {
-  async getHoldings(): Promise<Holding[]> {
-    // TODO: Integrate Yahoo Finance (CMP), Google Finance (P/E, Earnings)
-    // Placeholder: use purchase price as CMP for init
-    return MOCK_HOLDINGS.map((row) =>
-      addComputedFields(row, row.purchasePrice, null, null)
+  getSeed(sector?: string): SeedHolding[] {
+    const all = loadSeed();
+    if (sector) {
+      return all.filter((r) => r.sector === sector);
+    }
+    return all;
+  },
+
+  async getHoldings(
+    sector?: string,
+    cmpBySymbol?: Map<string, number>,
+    peBySymbol?: Map<string, number | null>,
+    earningsBySymbol?: Map<string, string | null>
+  ): Promise<Holding[]> {
+    const seed = this.getSeed(sector);
+    const cmpMap = cmpBySymbol ?? new Map();
+    const peMap = peBySymbol ?? new Map();
+    const earningsMap = earningsBySymbol ?? new Map();
+
+    return seed.map((row) =>
+      addComputedFields(
+        row,
+        resolveCmp(row, cmpMap),
+        peMap.get(row.nseBse) ?? null,
+        earningsMap.get(row.nseBse) ?? null
+      )
     );
   },
 
-  async getSectorsSummary(): Promise<SectorSummary[]> {
-    const holdings = await this.getHoldings();
+  async getSectorsSummary(
+    cmpBySymbol?: Map<string, number>,
+    peBySymbol?: Map<string, number | null>,
+    earningsBySymbol?: Map<string, string | null>
+  ): Promise<SectorSummary[]> {
+    const holdings = await this.getHoldings(undefined, cmpBySymbol, peBySymbol, earningsBySymbol);
     const bySector = new Map<string, SectorSummary>();
 
     for (const h of holdings) {

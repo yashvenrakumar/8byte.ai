@@ -17,6 +17,9 @@ With the server running, open **http://localhost:5001/api-docs** for interactive
 - `src/models/` – Data / domain models
 - `src/validation/` – Request validation
 - `src/middleware/` – standardResponse, notFound, errorHandler
+- `src/data/` – `portfolio.seed.json` (holdings from Excel structure)
+- `src/services/marketData.service.ts` – Yahoo Finance (CMP, P/E, earnings) via yahoo-finance2
+- `src/services/cache.service.ts` – In-memory TTL cache for market data (rate-limit friendly)
 
 ## Scripts
 
@@ -26,7 +29,7 @@ With the server running, open **http://localhost:5001/api-docs** for interactive
 
 ## Env
 
-Copy `.env.example` to `.env` and set `PORT`, `CLIENT_ORIGIN`, etc.
+Copy `.env.example` to `.env` and set `PORT`, `CLIENT_ORIGIN`, etc. No API keys required for Yahoo (unofficial API). If market calls fail, CMP falls back to purchase price.
 
 
 http://localhost:5001/api-docs

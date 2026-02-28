@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc && (cp -r src/data dist/ 2>/dev/null || true)",
     "start": "node dist/server.js",
     "lint": "eslint src --ext .ts"
   },
@@ -22,7 +22,8 @@
     "express": "^4.21.0",
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "yahoo-finance2": "^3.13.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
