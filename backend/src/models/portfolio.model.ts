@@ -41,6 +41,8 @@ export interface SeedHolding {
   portfolioPercent: number;
   nseBse: string;
   sector: string;
+  /** CMP from Excel; used when live API has no price so values match the sheet */
+  fallbackCmp?: number | null;
 }
 
 function loadSeed(): SeedHolding[] {
@@ -67,13 +69,15 @@ function addComputedFields(
   };
 }
 
-/** Resolve CMP: use provided map or fallback to purchase price. Used by service layer when integrating Yahoo/Google. */
+/** Resolve CMP: live API first, then Excel fallbackCmp, then purchase price. */
 export function resolveCmp(
   seed: SeedHolding,
   cmpBySymbol: Map<string, number>
 ): number {
-  const cmp = cmpBySymbol.get(seed.nseBse);
-  return typeof cmp === 'number' && Number.isFinite(cmp) ? cmp : seed.purchasePrice;
+  const live = cmpBySymbol.get(seed.nseBse);
+  if (typeof live === 'number' && Number.isFinite(live)) return live;
+  if (typeof seed.fallbackCmp === 'number' && Number.isFinite(seed.fallbackCmp)) return seed.fallbackCmp;
+  return seed.purchasePrice;
 }
 
 export const portfolioModel = {
