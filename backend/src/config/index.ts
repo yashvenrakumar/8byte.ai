@@ -2,7 +2,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const clientOriginRaw = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173';
+const defaultOrigins = 'http://localhost:5173,https://byteai-b065b.web.app';
+const clientOriginRaw = process.env.CLIENT_ORIGIN ?? defaultOrigins;
 const allowedOrigins = clientOriginRaw.split(',').map((o) => o.trim()).filter(Boolean);
 
 export const config = {
