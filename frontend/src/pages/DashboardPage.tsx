@@ -9,59 +9,173 @@ import type { Holding, SectorSummary } from '@/types/portfolio'
 const REFRESH_MS = 15000
 const REFRESH_SEC = REFRESH_MS / 1000
 
+type SortKey =
+  | 'particulars'
+  | 'purchasePrice'
+  | 'quantity'
+  | 'investment'
+  | 'portfolioPercent'
+  | 'nseBse'
+  | 'cmp'
+  | 'presentValue'
+  | 'gainLoss'
+  | 'peRatio'
+  | 'latestEarnings'
+  | 'sector'
+
+function compareHoldings(a: Holding, b: Holding, key: SortKey, dir: 'asc' | 'desc'): number {
+  let cmp = 0
+  switch (key) {
+    case 'particulars':
+    case 'nseBse':
+    case 'latestEarnings':
+      cmp = (a[key] ?? '').toString().localeCompare((b[key] ?? '').toString(), undefined, { sensitivity: 'base' })
+      break
+    case 'sector':
+      cmp = a.sector.localeCompare(b.sector, undefined, { sensitivity: 'base' })
+      break
+    case 'quantity':
+      cmp = a.quantity - b.quantity
+      break
+    case 'peRatio': {
+      const va = a.peRatio ?? -Infinity
+      const vb = b.peRatio ?? -Infinity
+      cmp = va - vb
+      break
+    }
+    default:
+      cmp = (a[key] as number) - (b[key] as number)
+  }
+  return dir === 'asc' ? cmp : -cmp
+}
+
+const SortableTh = memo(function SortableTh({
+  label,
+  sortKey,
+  currentKey,
+  currentDir,
+  onSort,
+  className = '',
+  align = 'right',
+}: {
+  label: string
+  sortKey: SortKey
+  currentKey: SortKey | null
+  currentDir: 'asc' | 'desc'
+  onSort: (key: SortKey) => void
+  className?: string
+  align?: 'left' | 'right' | 'center'
+}) {
+  const isActive = currentKey === sortKey
+  const alignClass = align === 'center' ? 'text-center' : align === 'left' ? 'text-left' : 'text-right'
+  return (
+    <th
+      role="columnheader"
+      aria-sort={isActive ? (currentDir === 'asc' ? 'ascending' : 'descending') : undefined}
+      className={`cursor-pointer select-none px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 ${alignClass} ${className}`}
+      onClick={() => onSort(sortKey)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {isActive && (
+          <span className="text-gray-500 dark:text-gray-400" aria-hidden>
+            {currentDir === 'asc' ? '↑' : '↓'}
+          </span>
+        )}
+      </span>
+    </th>
+  )
+})
+
 const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Holding[] }) {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortKey, setSortKey] = useState<SortKey | null>(null)
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+
+  const filteredAndSorted = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    let list = q ? holdings.filter((h) => h.particulars.toLowerCase().includes(q)) : [...holdings]
+    if (sortKey) {
+      list = [...list].sort((a, b) => compareHoldings(a, b, sortKey, sortDir))
+    }
+    return list
+  }, [holdings, searchQuery, sortKey, sortDir])
+
   const bySector = useMemo(() => {
     const map = new Map<string, Holding[]>()
-    for (const h of holdings) {
+    for (const h of filteredAndSorted) {
       const list = map.get(h.sector) ?? []
       list.push(h)
       map.set(h.sector, list)
     }
     return map
-  }, [holdings])
+  }, [filteredAndSorted])
 
   const sectorOrder = useMemo(() => Array.from(bySector.keys()), [bySector])
 
+  const handleSort = useCallback((key: SortKey) => {
+    setSortKey((prev) => {
+      if (prev === key) {
+        setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+        return key
+      }
+      setSortDir('asc')
+      return key
+    })
+  }, [])
+
   return (
-    <div className="overflow-x-auto rounded-none border border-gray-200 dark:border-gray-700 shadow-sm">
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead className="bg-gray-100 dark:bg-gray-800">
-          <tr>
-            <th className="sticky left-0 z-10 min-w-[220px] w-[220px] px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)]">
-              Particulars
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              Purchase
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              Qty
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              Investment
-            </th>
-            <th className="whitespace-nowrap px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              Portfolio %
-            </th>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              NSE/BSE
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              CMP
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              Present Value
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              Gain/Loss
-            </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              P/E Ratio
-            </th>
-            <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              Latest Earnings
-            </th>
-          </tr>
-        </thead>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <label htmlFor="holdings-search" className="sr-only">
+          Search stocks
+        </label>
+        <input
+          id="holdings-search"
+          type="search"
+          placeholder="Search stock (e.g. by name)..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="min-w-[200px] max-w-xs rounded-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 dark:focus:border-gray-400 dark:focus:ring-gray-400"
+          aria-label="Search stocks by name"
+        />
+        {searchQuery && (
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {filteredAndSorted.length} of {holdings.length} holdings
+          </span>
+        )}
+      </div>
+      <div className="overflow-x-auto rounded-none border border-gray-200 dark:border-gray-700 shadow-sm">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-100 dark:bg-gray-800">
+            <tr>
+              <th
+                role="columnheader"
+                aria-sort={sortKey === 'particulars' ? (sortDir === 'asc' ? 'ascending' : 'descending') : undefined}
+                className="sticky left-0 z-10 min-w-[220px] w-[220px] cursor-pointer select-none px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)]"
+                onClick={() => handleSort('particulars')}
+              >
+                <span className="inline-flex items-center gap-1">
+                  Particulars
+                  {sortKey === 'particulars' && (
+                    <span className="text-gray-500 dark:text-gray-400" aria-hidden>
+                      {sortDir === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </span>
+              </th>
+              <SortableTh label="Purchase" sortKey="purchasePrice" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+              <SortableTh label="Qty" sortKey="quantity" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+              <SortableTh label="Investment" sortKey="investment" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+              <SortableTh label="Portfolio %" sortKey="portfolioPercent" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="whitespace-nowrap" />
+              <SortableTh label="NSE/BSE" sortKey="nseBse" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} align="center" className="whitespace-nowrap" />
+              <SortableTh label="CMP" sortKey="cmp" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+              <SortableTh label="Present Value" sortKey="presentValue" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+              <SortableTh label="Gain/Loss" sortKey="gainLoss" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+              <SortableTh label="P/E Ratio" sortKey="peRatio" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+              <SortableTh label="Latest Earnings" sortKey="latestEarnings" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="whitespace-nowrap" align="left" />
+            </tr>
+          </thead>
         <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
           {sectorOrder.map((sector) => (
             <Fragment key={sector}>
@@ -116,6 +230,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )
 })
