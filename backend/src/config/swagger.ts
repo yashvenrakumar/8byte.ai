@@ -201,6 +201,7 @@ export const swaggerDocument = {
           totalInvestment: { type: 'number', example: 17500 },
           totalPresentValue: { type: 'number', example: 18100 },
           gainLoss: { type: 'number', example: 600 },
+          gainLossPercent: { type: 'number', example: 3.43 },
           holdingsCount: { type: 'number', example: 1 },
         },
       },

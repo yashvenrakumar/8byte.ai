@@ -19,6 +19,8 @@ export interface SectorSummary {
   totalInvestment: number
   totalPresentValue: number
   gainLoss: number
+  /** Sector-level Gain/Loss %: (gainLoss / totalInvestment) × 100 */
+  gainLossPercent: number
   holdingsCount: number
 }
 

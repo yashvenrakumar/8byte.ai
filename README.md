@@ -29,11 +29,20 @@ npm run dev
 
 App runs at `http://localhost:5173`. Vite proxies `/api` to the backend. Dashboard refreshes CMP and values every 15 seconds.
 
+## Usage
+
+- **Dashboard**: Open `http://localhost:5173` to view the portfolio table (holdings grouped by sector) and sector summary cards with allocation pie chart.
+- **Refresh**: CMP, Present Value and Gain/Loss refresh automatically every 15 seconds; a countdown is shown in the header.
+- **Search**: Use the search box to filter holdings by stock name.
+- **Sort**: Click any column header to sort by that column (asc/desc).
+- **Export**: Use "Export CSV" to download the current holdings as CSV.
+- **Sector filter (API)**: Call `GET /api/portfolio?sector=Financial%20Sector` to fetch only that sector’s holdings (Swagger: `http://localhost:5001/api-docs`).
+
 ## Requirements (from assignment)
 
-- **Portfolio table**: Particulars, Purchase Price, Qty, Investment, Portfolio %, NSE/BSE, CMP (Yahoo Finance), Present Value, Gain/Loss, P/E, Latest Earnings ✓
+- **Portfolio table**: Particulars, Purchase Price, Qty, Investment, Portfolio %, NSE/BSE, CMP (Yahoo Finance), Present Value, Gain/Loss, Gain/Loss (%), P/E, Latest Earnings ✓
 - **Dynamic updates**: CMP / Present Value / Gain-Loss refresh every 15s ✓
-- **Visuals**: Green/red for Gain/Loss; sector grouping with sector-level totals ✓
+- **Visuals**: Green/red for Gain/Loss; sector grouping with sector-level totals and Gain/Loss % ✓
 
 ## Docs
 

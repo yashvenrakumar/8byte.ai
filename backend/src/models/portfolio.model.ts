@@ -29,6 +29,8 @@ export interface SectorSummary {
   totalInvestment: number;
   totalPresentValue: number;
   gainLoss: number;
+  /** Sector-level Gain/Loss % as in Excel: (gainLoss / totalInvestment) × 100 */
+  gainLossPercent: number;
   holdingsCount: number;
 }
 
@@ -146,9 +148,15 @@ export const portfolioModel = {
           totalInvestment: h.investment,
           totalPresentValue: h.presentValue,
           gainLoss: h.gainLoss,
+          gainLossPercent: 0,
           holdingsCount: 1,
         });
       }
+    }
+
+    for (const s of bySector.values()) {
+      s.gainLossPercent =
+        s.totalInvestment > 0 ? (s.gainLoss / s.totalInvestment) * 100 : 0;
     }
 
     return Array.from(bySector.values());

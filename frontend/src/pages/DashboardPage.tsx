@@ -403,6 +403,9 @@ const SectorCards = memo(function SectorCards({ sectors }: { sectors: SectorSumm
             }`}
           >
             Gain/Loss: {formatCurrencyCompact(s.gainLoss)}
+            {typeof s.gainLossPercent === 'number' && (
+              <span className="ml-1">({formatPercent(s.gainLossPercent)})</span>
+            )}
           </p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
             {s.holdingsCount} holding{s.holdingsCount !== 1 ? 's' : ''}
