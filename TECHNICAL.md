@@ -15,7 +15,8 @@
 - **Solution**:
   - **Caching**: In-memory TTL caches for CMP (60s) and fundamentals (300s) reduce repeated calls for the same symbol.
   - **Throttling**: Batch fetches use a short delay (150ms) between symbol requests to avoid bursts.
-  - **Fallback**: If Yahoo returns no price for a symbol, we fall back to the holding’s purchase price so the dashboard still renders with a sensible value.
+  - **Fallback**: If Yahoo returns no price for a symbol, we fall back to the holding’s purchase price (or Excel `fallbackCmp` from seed) so the dashboard still renders with a sensible value.
+- **Verification logic**: Live CMP is accepted only if it is within 1%–20× the holding’s purchase price; otherwise we use Excel fallback or purchase price. This avoids wrong values when Yahoo returns a different metric (e.g. market cap) as price for some symbols.
 
 ### 3. Asynchronous Operations and Performance
 
