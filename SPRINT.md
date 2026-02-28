@@ -7,7 +7,7 @@
 | Area | Requirement |
 |------|-------------|
 | **Data sources** | Yahoo Finance → CMP (current market price); Google Finance → P/E ratio, Latest Earnings. Use structured JSON; acknowledge unofficial/scraping approach. |
-| **Portfolio table** | Particulars, Purchase Price, Qty, Investment, Portfolio (%), NSE/BSE, CMP, Present Value, Gain/Loss, P/E Ratio, Latest Earnings |
+| **Portfolio table** | Particulars, Purchase Price, Qty, Investment, Portfolio (%), NSE/BSE, CMP, Present Value, Gain/Loss, Gain/Loss (%), P/E Ratio, Latest Earnings (per Excel) |
 | **Dynamic updates** | CMP, Present Value, Gain/Loss refresh at regular intervals (e.g. every 15 seconds). |
 | **Visual** | Green for gains, red for losses. |
 | **Sector grouping** | Group by sector; sector-level: Total Investment, Total Present Value, Gain/Loss. |

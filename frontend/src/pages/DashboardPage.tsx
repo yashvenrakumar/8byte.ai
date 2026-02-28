@@ -5,9 +5,22 @@ import { fetchPortfolio, fetchSectors } from '@/store/slices/portfolioSlice'
 import { useInterval } from '@/hooks/useInterval'
 import { formatCurrency, formatCurrencyCompact, formatPercent, exchangeLabel } from '@/utils/format'
 import type { Holding, SectorSummary } from '@/types/portfolio'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from 'recharts'
 
 const REFRESH_MS = 15000
 const REFRESH_SEC = REFRESH_MS / 1000
+
+/** Gain/Loss % as in Excel: (Gain/Loss / Investment) × 100 */
+function gainLossPercent(h: Holding): number {
+  return h.investment ? (h.gainLoss / h.investment) * 100 : 0
+}
 
 type SortKey =
   | 'particulars'
@@ -19,6 +32,7 @@ type SortKey =
   | 'cmp'
   | 'presentValue'
   | 'gainLoss'
+  | 'gainLossPercent'
   | 'peRatio'
   | 'latestEarnings'
   | 'sector'
@@ -36,6 +50,9 @@ function compareHoldings(a: Holding, b: Holding, key: SortKey, dir: 'asc' | 'des
       break
     case 'quantity':
       cmp = a.quantity - b.quantity
+      break
+    case 'gainLossPercent':
+      cmp = gainLossPercent(a) - gainLossPercent(b)
       break
     case 'peRatio': {
       const va = a.peRatio ?? -Infinity
@@ -141,6 +158,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
       'CMP',
       'Present Value',
       'Gain/Loss',
+      'Gain/Loss (%)',
       'P/E Ratio',
       'Latest Earnings',
     ]
@@ -155,6 +173,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
       formatCurrency(h.cmp),
       formatCurrency(h.presentValue),
       formatCurrency(h.gainLoss),
+      formatPercent(gainLossPercent(h)),
       h.peRatio != null ? String(h.peRatio) : '',
       (h.latestEarnings ?? '').toString(),
     ])
@@ -223,6 +242,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
               <SortableTh label="CMP" sortKey="cmp" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
               <SortableTh label="Present Value" sortKey="presentValue" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
               <SortableTh label="Gain/Loss" sortKey="gainLoss" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+              <SortableTh label="Gain/Loss (%)" sortKey="gainLossPercent" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="whitespace-nowrap" />
               <SortableTh label="P/E Ratio" sortKey="peRatio" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
               <SortableTh label="Latest Earnings" sortKey="latestEarnings" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="whitespace-nowrap" align="left" />
             </tr>
@@ -234,7 +254,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
                 <td className="sticky left-0 z-10 min-w-[220px] w-[220px] px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800/80 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)]">
                   {sector}
                 </td>
-                <td colSpan={10} />
+                <td colSpan={11} />
               </tr>
               {(bySector.get(sector) ?? []).map((h) => (
                 <tr key={h.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30">
@@ -269,6 +289,13 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
                   >
                     {formatCurrency(h.gainLoss)}
                   </td>
+                  <td
+                    className={`px-4 py-2 text-sm text-right tabular-nums font-medium ${
+                      h.gainLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                    }`}
+                  >
+                    {formatPercent(gainLossPercent(h))}
+                  </td>
                   <td className="px-4 py-2 text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
                     {h.peRatio != null ? String(h.peRatio) : '—'}
                   </td>
@@ -294,6 +321,51 @@ const sectorCardVariants = {
     transition: { delay: i * 0.06, duration: 0.3, ease: 'easeOut' as const },
   }),
 }
+
+const SECTOR_COLORS = [
+  '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899',
+  '#06b6d4', '#84cc16',
+]
+
+const SectorAllocationChart = memo(function SectorAllocationChart({ sectors }: { sectors: SectorSummary[] }) {
+  const data = useMemo(
+    () =>
+      sectors.map((s) => ({
+        name: s.sector,
+        value: s.totalPresentValue,
+        investment: s.totalInvestment,
+        gainLoss: s.gainLoss,
+      })),
+    [sectors]
+  )
+  if (data.length === 0) return null
+  return (
+    <div className="h-[280px] w-full min-w-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius="70%"
+            label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
+          >
+            {data.map((_, i) => (
+              <Cell key={i} fill={SECTOR_COLORS[i % SECTOR_COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip
+            formatter={(value) => (typeof value === 'number' ? formatCurrencyCompact(value) : String(value ?? ''))}
+            contentStyle={{ backgroundColor: 'var(--tooltip-bg, #fff)', border: '1px solid #e5e7eb', borderRadius: 4 }}
+          />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  )
+})
 
 const SectorCards = memo(function SectorCards({ sectors }: { sectors: SectorSummary[] }) {
   return (
@@ -410,13 +482,25 @@ export function DashboardPage() {
         </p>
       </div>
 
+      <p className="text-xs text-amber-700 dark:text-amber-200 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-2 rounded-none" role="note">
+        <strong>Data disclaimer:</strong> CMP, P/E and latest earnings are from unofficial sources (e.g. Yahoo Finance) and may vary in accuracy or delay. This dashboard is not for trading or investment decisions. Verify figures from official sources.
+      </p>
+
       {sectors.length > 0 && (
         <>
           <section>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
               Sector Summary
             </h3>
-            <SectorCards sectors={sectors} />
+            <div className="grid gap-6 lg:grid-cols-[1fr,1.2fr]">
+              <div className="rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Allocation by present value</h4>
+                <SectorAllocationChart sectors={sectors} />
+              </div>
+              <div>
+                <SectorCards sectors={sectors} />
+              </div>
+            </div>
           </section>
         </>
       )}

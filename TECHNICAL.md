@@ -35,7 +35,12 @@
 - **Challenge**: API keys or sensitive logic must not be exposed to the client.
 - **Solution**: All Yahoo/Google (or future) calls are made only on the backend. The frontend only calls our API (`/api/portfolio`, `/api/portfolio/sectors`). No market-data keys or credentials are sent to the browser.
 
-### 6. Frontend Performance and UX
+### 6. Data Accuracy Disclaimer and Optional Charting
+
+- **Disclaimer**: Assignment asks to add disclaimers when data may vary in accuracy. The dashboard shows a short disclaimer that CMP, P/E and earnings are from unofficial sources and are not for trading or investment decisions.
+- **recharts**: Assignment recommends optional charting. A sector allocation pie chart (by present value) is included in the Sector Summary section using recharts.
+
+### 7. Frontend Performance and UX
 
 - **Challenge**: Large tables and frequent refresh can cause unnecessary re-renders and jank.
 - **Solution**:
@@ -43,7 +48,7 @@
   - Table and sector summary components are wrapped in `React.memo` to avoid re-renders when parent re-renders with same props.
   - Sector grouping and derived data use `useMemo` so we don’t recompute on every render.
 
-### 7. Error Handling
+### 8. Error Handling
 
 - **Backend**: Market data functions catch errors and return `null`; the portfolio model uses purchase price when CMP is missing. API errors are handled by a central error middleware and return a consistent `{ success, message }` shape.
 - **Frontend**: Failed API calls set Redux error state; the dashboard shows an error message and a “Retry” button. Error boundary catches React runtime errors.
