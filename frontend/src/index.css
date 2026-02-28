@@ -1,13 +1,51 @@
 @import "tailwindcss";
 
+/* Use .dark class on html for dark mode (we set it from ThemeContext) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --font-sans: system-ui, ui-sans-serif, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Theme palette – overridden by data-theme below */
+  --color-primary-dark: #0A0F24;
+  --color-accent: #2978FF;
+  --color-accent-secondary: #5BA3FF;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F6F8FA;
+  --color-border: #E5E7EB;
+  --color-text: #0A0F24;
+  --color-text-muted: #6B7280;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --color-primary-dark: #0A0F24;
+  --color-accent: #2978FF;
+  --color-accent-secondary: #5BA3FF;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F6F8FA;
+  --color-border: #E5E7EB;
+  --color-text: #0A0F24;
+  --color-text-muted: #6B7280;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --color-primary-dark: #E5E7EB;
+  --color-accent: #5BA3FF;
+  --color-accent-secondary: #7EB8FF;
+  --color-surface: #0A0F24;
+  --color-surface-muted: #111827;
+  --color-border: #374151;
+  --color-text: #F9FAFB;
+  --color-text-muted: #9CA3AF;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   font-family: var(--font-sans);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
 }
 
 #root {
