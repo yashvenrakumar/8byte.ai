@@ -1,4 +1,4 @@
-import { useEffect, useMemo, Fragment, memo } from 'react'
+import { useEffect, useMemo, Fragment, memo, useRef, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { fetchPortfolio, fetchSectors } from '@/store/slices/portfolioSlice'
@@ -7,6 +7,7 @@ import { formatCurrency, formatPercent, exchangeLabel } from '@/utils/format'
 import type { Holding, SectorSummary } from '@/types/portfolio'
 
 const REFRESH_MS = 15000
+const REFRESH_SEC = REFRESH_MS / 1000
 
 const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Holding[] }) {
   const bySector = useMemo(() => {
@@ -177,17 +178,27 @@ const SectorCards = memo(function SectorCards({ sectors }: { sectors: SectorSumm
 export function DashboardPage() {
   const dispatch = useAppDispatch()
   const { holdings, sectors, loading, error } = useAppSelector((s) => s.portfolio)
+  const nextRefreshAtRef = useRef(Date.now() + REFRESH_MS)
+  const [secondsLeft, setSecondsLeft] = useState(REFRESH_SEC)
 
-  const load = () => {
+  const load = useCallback(() => {
+    nextRefreshAtRef.current = Date.now() + REFRESH_MS
     void dispatch(fetchPortfolio())
     void dispatch(fetchSectors())
-  }
+  }, [dispatch])
 
   useEffect(() => {
     load()
-  }, [dispatch])
+  }, [load])
 
   useInterval(load, REFRESH_MS)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSecondsLeft(Math.max(0, Math.ceil((nextRefreshAtRef.current - Date.now()) / 1000)))
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
 
   if (loading && holdings.length === 0) {
     return (
@@ -222,8 +233,14 @@ export function DashboardPage() {
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
           Portfolio Dashboard
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          CMP & values refresh every 15s
+        <p className="text-sm text-gray-500 dark:text-gray-400 tabular-nums">
+          {secondsLeft > 0 ? (
+            <>
+              CMP & values refresh in <span className="font-medium text-gray-700 dark:text-gray-300">{secondsLeft}s</span>
+            </>
+          ) : (
+            <span className="font-medium text-gray-700 dark:text-gray-300">Refreshing…</span>
+          )}
         </p>
       </div>
 
