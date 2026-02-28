@@ -21,7 +21,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
   const sectorOrder = useMemo(() => Array.from(bySector.keys()), [bySector])
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+    <div className="overflow-x-auto rounded-none border border-gray-200 dark:border-gray-700 shadow-sm">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-100 dark:bg-gray-800">
           <tr>
@@ -126,7 +126,7 @@ const SectorCards = memo(function SectorCards({ sectors }: { sectors: SectorSumm
       {sectors.map((s) => (
         <div
           key={s.sector}
-          className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 shadow-sm"
+          className="rounded-none border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 shadow-sm"
         >
           <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{s.sector}</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -170,7 +170,7 @@ export function DashboardPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-gray-600 dark:border-t-gray-300" />
+          <div className="inline-block h-8 w-8 animate-spin rounded-none border-2 border-gray-300 border-t-gray-600 dark:border-gray-600 dark:border-t-gray-300" />
           <p className="mt-2 text-gray-500 dark:text-gray-400">Loading portfolio...</p>
         </div>
       </div>
@@ -179,13 +179,13 @@ export function DashboardPage() {
 
   if (error) {
     return (
-      <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 text-red-700 dark:text-red-300">
+      <div className="rounded-none bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 text-red-700 dark:text-red-300">
         <p className="font-medium">Error loading portfolio</p>
         <p className="text-sm mt-1">{error}</p>
         <button
           type="button"
           onClick={() => load()}
-          className="mt-3 px-3 py-1.5 text-sm bg-red-100 dark:bg-red-900/40 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/60"
+          className="mt-3 px-3 py-1.5 text-sm bg-red-100 dark:bg-red-900/40 rounded-none hover:bg-red-200 dark:hover:bg-red-900/60"
         >
           Retry
         </button>
