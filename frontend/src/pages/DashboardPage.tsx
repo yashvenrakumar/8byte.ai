@@ -25,7 +25,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-100 dark:bg-gray-800">
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+            <th className="sticky left-0 z-10 min-w-[220px] w-[220px] px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)]">
               Particulars
             </th>
             <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -64,16 +64,14 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
           {sectorOrder.map((sector) => (
             <Fragment key={sector}>
               <tr className="bg-gray-50 dark:bg-gray-800/80">
-                <td
-                  colSpan={11}
-                  className="px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white"
-                >
+                <td className="sticky left-0 z-10 min-w-[220px] w-[220px] px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800/80 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)]">
                   {sector}
                 </td>
+                <td colSpan={10} />
               </tr>
               {(bySector.get(sector) ?? []).map((h) => (
                 <tr key={h.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30">
-                  <td className="px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                  <td className="sticky left-0 z-10 min-w-[220px] w-[220px] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)] hover:bg-gray-50/50 dark:hover:bg-gray-700/30">
                     {h.particulars}
                   </td>
                   <td className="px-4 py-2 text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
