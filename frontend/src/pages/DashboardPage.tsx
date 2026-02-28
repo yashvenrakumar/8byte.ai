@@ -39,7 +39,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
             <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
               Investment
             </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+            <th className="whitespace-nowrap px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
               Portfolio %
             </th>
             <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -57,7 +57,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
             <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
               P/E Ratio
             </th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+            <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
               Latest Earnings
             </th>
           </tr>
