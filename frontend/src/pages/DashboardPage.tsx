@@ -124,6 +124,50 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
     })
   }, [])
 
+  const exportCsv = useCallback(() => {
+    const escape = (v: string) => {
+      const s = String(v ?? '')
+      if (/[",\r\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`
+      return s
+    }
+    const headers = [
+      'Sector',
+      'Particulars',
+      'Purchase',
+      'Qty',
+      'Investment',
+      'Portfolio %',
+      'NSE/BSE',
+      'CMP',
+      'Present Value',
+      'Gain/Loss',
+      'P/E Ratio',
+      'Latest Earnings',
+    ]
+    const rows = filteredAndSorted.map((h) => [
+      h.sector,
+      h.particulars,
+      formatCurrency(h.purchasePrice),
+      String(h.quantity),
+      formatCurrency(h.investment),
+      formatPercent(h.portfolioPercent),
+      exchangeLabel(h.nseBse),
+      formatCurrency(h.cmp),
+      formatCurrency(h.presentValue),
+      formatCurrency(h.gainLoss),
+      h.peRatio != null ? String(h.peRatio) : '',
+      (h.latestEarnings ?? '').toString(),
+    ])
+    const csv = [headers.map(escape).join(','), ...rows.map((r) => r.map(escape).join(','))].join('\r\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `holdings-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [filteredAndSorted])
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
@@ -144,6 +188,13 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
             {filteredAndSorted.length} of {holdings.length} holdings
           </span>
         )}
+        <button
+          type="button"
+          onClick={exportCsv}
+          className="ml-auto rounded-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-500 dark:focus:ring-gray-400"
+        >
+          Export CSV
+        </button>
       </div>
       <div className="overflow-x-auto rounded-none border border-gray-200 dark:border-gray-700 shadow-sm">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
