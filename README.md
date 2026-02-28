@@ -29,7 +29,7 @@ npx firebase deploy
 
 | Layer    | Tech |
 |----------|------|
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS, Redux Toolkit, React Router |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS, Redux Toolkit, React Router, Framer Motion |
 | Backend  | Node.js, Express, TypeScript |
 | API docs | Swagger UI (OpenAPI 3) at `/api-docs` |
 | Hosting  | **Frontend:** Firebase Hosting · **Backend:** Render |
