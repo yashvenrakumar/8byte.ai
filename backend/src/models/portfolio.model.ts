@@ -69,13 +69,28 @@ function addComputedFields(
   };
 }
 
-/** Resolve CMP: live API first, then Excel fallbackCmp, then purchase price. */
+/**
+ * Sanity bounds: reject live CMP if it's clearly wrong (e.g. Yahoo returns market cap as price).
+ * Use fallback when live is > 20x or < 1% of purchase price.
+ */
+const CMP_MAX_MULTIPLIER = 20;
+const CMP_MIN_MULTIPLIER = 0.01;
+
+function isSaneCmp(liveCmp: number, purchasePrice: number): boolean {
+  if (!Number.isFinite(purchasePrice) || purchasePrice <= 0) return true;
+  const ratio = liveCmp / purchasePrice;
+  return ratio >= CMP_MIN_MULTIPLIER && ratio <= CMP_MAX_MULTIPLIER;
+}
+
+/** Resolve CMP: live API first (if sane), then Excel fallbackCmp, then purchase price. */
 export function resolveCmp(
   seed: SeedHolding,
   cmpBySymbol: Map<string, number>
 ): number {
   const live = cmpBySymbol.get(seed.nseBse);
-  if (typeof live === 'number' && Number.isFinite(live)) return live;
+  if (typeof live === 'number' && Number.isFinite(live) && isSaneCmp(live, seed.purchasePrice)) {
+    return live;
+  }
   if (typeof seed.fallbackCmp === 'number' && Number.isFinite(seed.fallbackCmp)) return seed.fallbackCmp;
   return seed.purchasePrice;
 }
