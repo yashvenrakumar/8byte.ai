@@ -89,7 +89,7 @@ const SortableTh = memo(function SortableTh({
     <th
       role="columnheader"
       aria-sort={isActive ? (currentDir === 'asc' ? 'ascending' : 'descending') : undefined}
-      className={`cursor-pointer select-none px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 ${alignClass} ${className}`}
+      className={`cursor-pointer select-none px-2 py-2 sm:px-4 sm:py-3 text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 ${alignClass} ${className}`}
       onClick={() => onSort(sortKey)}
     >
       <span className="inline-flex items-center gap-1">
@@ -189,7 +189,7 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
         <label htmlFor="holdings-search" className="sr-only">
           Search stocks
         </label>
@@ -199,30 +199,32 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
           placeholder="Search stock (e.g. by name)..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="min-w-[200px] max-w-xs rounded-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 dark:focus:border-gray-400 dark:focus:ring-gray-400"
+          className="w-full min-w-0 sm:min-w-[200px] sm:max-w-xs rounded-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 sm:py-2 text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 dark:focus:border-gray-400 dark:focus:ring-gray-400"
           aria-label="Search stocks by name"
         />
-        {searchQuery && (
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {filteredAndSorted.length} of {holdings.length} holdings
-          </span>
-        )}
-        <button
-          type="button"
-          onClick={exportCsv}
-          className="ml-auto rounded-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-500 dark:focus:ring-gray-400"
-        >
-          Export CSV
-        </button>
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          {searchQuery && (
+            <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              {filteredAndSorted.length} of {holdings.length} holdings
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="w-full sm:w-auto rounded-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-500 dark:focus:ring-gray-400 touch-manipulation"
+          >
+            Export CSV
+          </button>
+        </div>
       </div>
-      <div className="overflow-x-auto rounded-none border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="overflow-x-auto -mx-3 sm:mx-0 rounded-none border border-gray-200 dark:border-gray-700 shadow-sm touch-pan-x">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-100 dark:bg-gray-800">
             <tr>
               <th
                 role="columnheader"
                 aria-sort={sortKey === 'particulars' ? (sortDir === 'asc' ? 'ascending' : 'descending') : undefined}
-                className="sticky left-0 z-10 min-w-[220px] w-[220px] cursor-pointer select-none px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)]"
+                className="sticky left-0 z-10 min-w-[160px] w-[160px] sm:min-w-[200px] sm:w-[200px] md:min-w-[220px] md:w-[220px] cursor-pointer select-none px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)]"
                 onClick={() => handleSort('particulars')}
               >
                 <span className="inline-flex items-center gap-1">
@@ -242,64 +244,66 @@ const HoldingsTable = memo(function HoldingsTable({ holdings }: { holdings: Hold
               <SortableTh label="CMP" sortKey="cmp" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
               <SortableTh label="Present Value" sortKey="presentValue" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
               <SortableTh label="Gain/Loss" sortKey="gainLoss" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-              <SortableTh label="Gain/Loss (%)" sortKey="gainLossPercent" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="whitespace-nowrap" />
-              <SortableTh label="P/E Ratio" sortKey="peRatio" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-              <SortableTh label="Latest Earnings" sortKey="latestEarnings" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="whitespace-nowrap" align="left" />
+              <SortableTh label="G/L %" sortKey="gainLossPercent" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="whitespace-nowrap md:whitespace-normal" />
+              <SortableTh label="P/E" sortKey="peRatio" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="hidden md:table-cell" />
+              <SortableTh label="Latest Earnings" sortKey="latestEarnings" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="whitespace-nowrap hidden lg:table-cell" align="left" />
             </tr>
           </thead>
         <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
           {sectorOrder.map((sector) => (
             <Fragment key={sector}>
               <tr className="bg-gray-50 dark:bg-gray-800/80">
-                <td className="sticky left-0 z-10 min-w-[220px] w-[220px] px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800/80 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)]">
+                <td className="sticky left-0 z-10 min-w-[160px] w-[160px] sm:min-w-[200px] sm:w-[200px] md:min-w-[220px] md:w-[220px] px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800/80 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)]">
                   {sector}
                 </td>
-                <td colSpan={11} />
+                <td colSpan={9} className="md:hidden" />
+                <td colSpan={10} className="hidden md:table-cell lg:hidden" />
+                <td colSpan={11} className="hidden lg:table-cell" />
               </tr>
               {(bySector.get(sector) ?? []).map((h) => (
                 <tr key={h.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30">
-                  <td className="sticky left-0 z-10 min-w-[220px] w-[220px] px-4 py-2 text-sm font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)] hover:bg-gray-50/50 dark:hover:bg-gray-700/30">
+                  <td className="sticky left-0 z-10 min-w-[160px] w-[160px] sm:min-w-[200px] sm:w-[200px] md:min-w-[220px] md:w-[220px] px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_6px_-2px_rgba(0,0,0,0.2)] hover:bg-gray-50/50 dark:hover:bg-gray-700/30">
                     {h.particulars}
                   </td>
-                  <td className="px-4 py-2 text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
+                  <td className="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
                     {formatCurrency(h.purchasePrice)}
                   </td>
-                  <td className="px-4 py-2 text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
+                  <td className="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
                     {h.quantity}
                   </td>
-                  <td className="px-4 py-2 text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
+                  <td className="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
                     {formatCurrency(h.investment)}
                   </td>
-                  <td className="px-4 py-2 text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
+                  <td className="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-right tabular-nums text-gray-700 dark:text-gray-300 whitespace-nowrap">
                     {formatPercent(h.portfolioPercent)}
                   </td>
-                  <td className="px-4 py-2 text-sm text-center text-gray-600 dark:text-gray-400">
+                  <td className="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-center text-gray-600 dark:text-gray-400">
                     {exchangeLabel(h.nseBse)}
                   </td>
-                  <td className="px-4 py-2 text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
+                  <td className="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
                     {formatCurrency(h.cmp)}
                   </td>
-                  <td className="px-4 py-2 text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
+                  <td className="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
                     {formatCurrency(h.presentValue)}
                   </td>
                   <td
-                    className={`px-4 py-2 text-sm text-right tabular-nums font-medium ${
+                    className={`px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-right tabular-nums font-medium ${
                       h.gainLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                     }`}
                   >
                     {formatCurrency(h.gainLoss)}
                   </td>
                   <td
-                    className={`px-4 py-2 text-sm text-right tabular-nums font-medium ${
+                    className={`px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-right tabular-nums font-medium ${
                       h.gainLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                     }`}
                   >
                     {formatPercent(gainLossPercent(h))}
                   </td>
-                  <td className="px-4 py-2 text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
+                  <td className="hidden md:table-cell px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-right tabular-nums text-gray-700 dark:text-gray-300">
                     {h.peRatio != null ? String(h.peRatio) : '—'}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+                  <td className="hidden lg:table-cell px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
                     {h.latestEarnings ?? '—'}
                   </td>
                 </tr>
@@ -340,7 +344,7 @@ const SectorAllocationChart = memo(function SectorAllocationChart({ sectors }: {
   )
   if (data.length === 0) return null
   return (
-    <div className="h-[280px] w-full min-w-0">
+    <div className="h-[220px] sm:h-[260px] md:h-[280px] w-full min-w-0">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -388,17 +392,17 @@ const SectorCards = memo(function SectorCards({ sectors }: { sectors: SectorSumm
             transition: { duration: 0.2, ease: 'easeOut' },
           }}
           whileTap={{ scale: 0.99 }}
-          className="rounded-none border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 shadow-sm cursor-default"
+          className="rounded-none border border-gray-200 dark:border-gray-700 p-3 sm:p-4 bg-white dark:bg-gray-800 shadow-sm cursor-default"
         >
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{s.sector}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 tabular-nums">
+          <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-1.5 sm:mb-2">{s.sector}</h3>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 tabular-nums">
             Investment: {formatCurrencyCompact(s.totalInvestment)}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 tabular-nums">
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 tabular-nums">
             Present: {formatCurrencyCompact(s.totalPresentValue)}
           </p>
           <p
-            className={`text-sm font-medium mt-1 tabular-nums ${
+            className={`text-xs sm:text-sm font-medium mt-1 tabular-nums ${
               s.gainLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
             }`}
           >
@@ -443,10 +447,10 @@ export function DashboardPage() {
 
   if (loading && holdings.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-8 sm:py-12 px-4">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-none border-2 border-gray-300 border-t-gray-600 dark:border-gray-600 dark:border-t-gray-300" />
-          <p className="mt-2 text-gray-500 dark:text-gray-400">Loading portfolio...</p>
+          <p className="mt-2 text-sm sm:text-base text-gray-500 dark:text-gray-400">Loading portfolio...</p>
         </div>
       </div>
     )
@@ -454,13 +458,13 @@ export function DashboardPage() {
 
   if (error) {
     return (
-      <div className="rounded-none bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 text-red-700 dark:text-red-300">
-        <p className="font-medium">Error loading portfolio</p>
-        <p className="text-sm mt-1">{error}</p>
+      <div className="rounded-none bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 sm:p-4 text-red-700 dark:text-red-300">
+        <p className="font-medium text-sm sm:text-base">Error loading portfolio</p>
+        <p className="text-xs sm:text-sm mt-1 wrap-break-word">{error}</p>
         <button
           type="button"
           onClick={() => load()}
-          className="mt-3 px-3 py-1.5 text-sm bg-red-100 dark:bg-red-900/40 rounded-none hover:bg-red-200 dark:hover:bg-red-900/60"
+          className="mt-3 px-4 py-2.5 sm:py-1.5 text-sm bg-red-100 dark:bg-red-900/40 rounded-none hover:bg-red-200 dark:hover:bg-red-900/60 touch-manipulation min-h-[44px] sm:min-h-0"
         >
           Retry
         </button>
@@ -469,12 +473,12 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+    <div className="space-y-6 sm:space-y-8">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
           Portfolio Dashboard
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 tabular-nums">
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 tabular-nums">
           {secondsLeft > 0 ? (
             <>
               CMP & values refresh in <span className="font-medium text-gray-700 dark:text-gray-300">{secondsLeft}s</span>
@@ -485,19 +489,19 @@ export function DashboardPage() {
         </p>
       </div>
 
-      <p className="text-xs text-amber-700 dark:text-amber-200 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-2 rounded-none" role="note">
+      <p className="text-xs text-amber-700 dark:text-amber-200 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-2 rounded-none sm:text-left" role="note">
         <strong>Data disclaimer:</strong> CMP, P/E and latest earnings are from unofficial sources (e.g. Yahoo Finance) and may vary in accuracy or delay. This dashboard is not for trading or investment decisions. Verify figures from official sources.
       </p>
 
       {sectors.length > 0 && (
         <>
           <section>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
+            <h3 className="text-base font-medium text-gray-900 dark:text-white mb-3 sm:text-lg">
               Sector Summary
             </h3>
-            <div className="grid gap-6 lg:grid-cols-[1fr,1.2fr]">
-              <div className="rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Allocation by present value</h4>
+            <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr,1.2fr]">
+              <div className="rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 sm:p-4 shadow-sm">
+                <h4 className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Allocation by present value</h4>
                 <SectorAllocationChart sectors={sectors} />
               </div>
               <div>
@@ -509,7 +513,7 @@ export function DashboardPage() {
       )}
 
       <section>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
+        <h3 className="text-base font-medium text-gray-900 dark:text-white mb-3 sm:text-lg">
           Holdings by Sector
         </h3>
         {holdings.length === 0 ? (

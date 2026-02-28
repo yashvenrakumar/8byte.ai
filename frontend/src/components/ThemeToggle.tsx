@@ -17,7 +17,7 @@ export function ThemeToggle() {
           type="button"
           onClick={() => setTheme(opt.value)}
           title={`${opt.label} theme`}
-          className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
+          className={`flex items-center justify-center gap-1.5 rounded-md px-2.5 py-2 sm:py-1.5 min-h-[44px] sm:min-h-0 text-sm font-medium transition-colors touch-manipulation ${
             theme === opt.value
               ? 'bg-accent text-white shadow-sm'
               : 'text-text-muted hover:bg-surface-muted hover:text-text'
