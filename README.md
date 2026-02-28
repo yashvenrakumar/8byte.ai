@@ -31,6 +31,7 @@ npx firebase deploy
 |----------|------|
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS, Redux Toolkit, React Router |
 | Backend  | Node.js, Express, TypeScript |
+| API docs | Swagger UI (OpenAPI 3) at `/api-docs` |
 | Hosting  | **Frontend:** Firebase Hosting · **Backend:** Render |
 | Market   | yahoo-finance2 (CMP, P/E, earnings date) |
 | Data     | JSON seed (from Excel structure); in-memory cache for market data |
