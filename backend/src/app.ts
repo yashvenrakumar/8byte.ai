@@ -12,7 +12,19 @@ import { apiRoutes } from './routes/index.js';
 const app = express();
 
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: config.clientOrigin }));
+app.use(cors({
+  origin: Array.isArray(config.clientOrigin)
+    ? (origin, cb) => {
+        if (origin && config.allowedOrigins.includes(origin)) {
+          cb(null, true);
+        } else if (!origin) {
+          cb(null, true);
+        } else {
+          cb(null, false);
+        }
+      }
+    : config.clientOrigin,
+}));
 app.use(morgan(config.nodeEnv === 'development' ? 'dev' : 'combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
