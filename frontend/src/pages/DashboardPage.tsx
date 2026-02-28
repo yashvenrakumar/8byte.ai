@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { fetchPortfolio, fetchSectors } from '@/store/slices/portfolioSlice'
 import { useInterval } from '@/hooks/useInterval'
-import { formatCurrency, formatPercent, exchangeLabel } from '@/utils/format'
+import { formatCurrency, formatCurrencyCompact, formatPercent, exchangeLabel } from '@/utils/format'
 import type { Holding, SectorSummary } from '@/types/portfolio'
 
 const REFRESH_MS = 15000
@@ -153,18 +153,18 @@ const SectorCards = memo(function SectorCards({ sectors }: { sectors: SectorSumm
           className="rounded-none border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 shadow-sm cursor-default"
         >
           <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{s.sector}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Investment: {formatCurrency(s.totalInvestment)}
+          <p className="text-sm text-gray-500 dark:text-gray-400 tabular-nums">
+            Investment: {formatCurrencyCompact(s.totalInvestment)}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Present: {formatCurrency(s.totalPresentValue)}
+          <p className="text-sm text-gray-500 dark:text-gray-400 tabular-nums">
+            Present: {formatCurrencyCompact(s.totalPresentValue)}
           </p>
           <p
-            className={`text-sm font-medium mt-1 ${
+            className={`text-sm font-medium mt-1 tabular-nums ${
               s.gainLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
             }`}
           >
-            Gain/Loss: {formatCurrency(s.gainLoss)}
+            Gain/Loss: {formatCurrencyCompact(s.gainLoss)}
           </p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
             {s.holdingsCount} holding{s.holdingsCount !== 1 ? 's' : ''}
